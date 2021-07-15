@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h3>Save to database: </h3>
+    <form action ="{% url 'redirected' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" name="users">Save Users</button>
+        <button type="submit" name="accounts">Save Contacts</button>
+        <button type="submit" name="contacts">Save Accounts</button>
+    </form>
+    <br>
+    <br>
+    <div>{{msg}}</div>
+
+{% endblock %}

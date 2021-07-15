@@ -15,17 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from firstapp.views import UserLogin, redirected,  list_users, fetch_users
+from firstapp.views import UserLogin, redirected,  list_users
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', UserLogin, name="userlogin"),
     path('user/', redirected, name="redirected"),
-
-
-    path('users/', fetch_users, name="fetch_users"),
-    path('listuser/', list_users, name="list_users"),
-
+    path('listuser/', list_users, name="listuser"),
 
 ]

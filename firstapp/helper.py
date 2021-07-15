@@ -1,5 +1,6 @@
 import requests
 from django.http import HttpResponse
+from firstapp.models import UserData
 
 client_id = '3MVG9fe4g9fhX0E6eAkSTAIn6bHBDUBPVS51MnSHeEjZq58NEPaOM37jXoEWVtM10l7gMKoLjHDuPLZhTt9fi'
 client_secret = '21D77A2819CA4DCDA21E90C6E1C6FDE11806895AC5959FE7371A344B426E273F'
@@ -18,13 +19,14 @@ def get_token(code):
     if r.status_code == 200:
         d = dict()
         d['token'] = r.json()["access_token"]
-        print(d['token'])
+        # print(d['token'])
         d['instance_url'] = r.json()["instance_url"]
-        print(d['instance_url'])
-    elif r.status_code == 404:
-        return HttpResponse("Page Not Found")
+        # print(d['instance_url'])
+    elif r.status_code == 400:
+        print("Invalid auth code")
+        d = dict()
     else:
-        return HttpResponse("")
+        d = dict()
     return d
 
 
@@ -33,10 +35,23 @@ def fetch_user_util(token, instance_url):
     header = {
         'Authorization': 'Bearer ' + token
     }
-    r = requests.get(instance_url + "/services/scim/v2/Users", headers=header)
+    r = requests.get(
+        instance_url + "/services/data/v52.0/query/?q=SELECT+email+,+name+,+employeenumber+,+department+,+companyname+,+city+from+User",
+        headers=header)
     if str(r.status_code) == '401':
-        return {'success': False, 'msg': 'Invalid Session Id'}
+        return {'success': False, 'code': '401', 'msg': 'Invalid Session Id'}
     elif str(r.status_code) == '200':
-        print(r.json())
-        return {'success': True, 'msg': r.json()}
-    return {'success': False, 'msg': 'Request Could Not Complete'}
+        return {'success': True, 'code': '200', 'msg': 'Request completed', 'data': r.json()['records']}
+    return {'success': False, 'code': r.status_code, 'msg': 'Request Could Not Complete'}
+
+
+def save_todb_users(temp_variable):
+    for var in temp_variable:
+        obj = UserData(Email=var['Email'], Name=var['Name'], EmployeeNumber=var['EmployeeNumber'],
+                       Department=['Department'], City=var['Department'])
+        obj.save()
+
+
+def get_fromdb_users():
+    return UserData.objects.all()
+

@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>list of users</title>
-</head>
-<body>
-{{msg}}
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>list of users</title>
+    </head>
+    <body>
+        {% for user in data %}
+            <li>
+                <div>Email: {{ user.Email }}</div>
+                <div>Name: {{ user.Name }}</div>
+                <div>Department: {{ user.Department }}</div>
+                <div>EmployeeNumber: {{ user.EmployeeNumber }}</div>
+            </li>
+            <br>
+        {% endfor %}
+    </body>
 </html>
