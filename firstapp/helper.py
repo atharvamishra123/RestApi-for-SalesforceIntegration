@@ -7,27 +7,42 @@ client_secret = '21D77A2819CA4DCDA21E90C6E1C6FDE11806895AC5959FE7371A344B426E273
 redirect_uri = 'http://localhost:8000/user/'
 
 
-def get_token(code):
+def get_token(code, refresh_token=None):
     params = {
         'client_id': client_id,
         'client_secret': client_secret,
         'redirect_uri': redirect_uri,
-        'grant_type': "authorization_code",
-        'code': code
     }
-    r = requests.post("https://login.salesforce.com/services/oauth2/token", params=params)
-    if r.status_code == 200:
+
+    if refresh_token is None and code is not None:
+        print('if')
+        params['grant_type'] = "authorization_code"
+        params['code'] = code
+        r = requests.post("https://login.salesforce.com/services/oauth2/token", params=params)
         d = dict()
-        d['token'] = r.json()["access_token"]
-        # print(d['token'])
-        d['instance_url'] = r.json()["instance_url"]
-        # print(d['instance_url'])
-    elif r.status_code == 400:
-        print("Invalid auth code")
+        if r.status_code == 200:
+            d['token'] = r.json()["access_token"]
+            d['refresh_token'] = r.json()["refresh_token"]
+            # print(d['token'])
+            d['instance_url'] = r.json()["instance_url"]
+            # print(d['instance_url'])
+        # elif r.status_code == 400:
+        #     print("Invalid auth code")
+        #     d = dict()
+        # else:
+        #     d = dict()
+        return d
+    elif refresh_token is not None:
+        print('elif')
+        params['grant_type'] = "refresh_token"
+        r = requests.post("https://login.salesforce.com/services/oauth2/token", params=params)
         d = dict()
-    else:
-        d = dict()
-    return d
+        if r.status_code == 200:
+            d['token'] = r.json()["access_token"]
+            # print(d['token'])
+            d['instance_url'] = r.json()["instance_url"]
+            # print(d['instance_url'])
+        return d
 
 
 def fetch_user_util(token, instance_url):
